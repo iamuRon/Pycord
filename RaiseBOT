@@ -1,0 +1,97 @@
+from discord.ext import commands
+import discord
+import json
+import os
+
+bot = commands.Bot(command_prefix= ".")
+
+active_databases = ["chatlog.txt", "mainbank.txt", "userdata.txt"]
+
+def database_read():
+    users = [line.strip() for line in open("userdata.txt", 'r')]
+    return users
+    
+def database_write(ctx):
+    with open("userdata.txt", 'a') as chatlog:
+        chatlog.write(f"{ctx}\n")
+    chatlog.close()
+
+
+class MyClient(discord.Client):
+
+    @bot.event
+    async def on_ready(self):
+        print(f"Logged in as {bot}\n ----------")
+        print(f"Active Database Right Now: \n {active_databases}")
+    
+    @bot.event
+    async def on_member_join(self, member):
+        guild = member.guild
+        if guild.system_channel is not None:
+            to_send = f"welcome {member.mention} to {guild.name}!"
+            await guild.system_channel.send(to_send)
+            
+            user_list = [f"{member.name} {member.id} {member.joined_at}"]
+        check = database_read()
+        user = member
+        if str(user) not in check:
+            database_write(user)
+
+        
+
+    @bot.event
+    async def on_message(self, message):
+        context = [f"Server: {message.author.guild} -> Channel: {message.channel} ->  User: {message.author} | {message.created_at} : {message.content}"]
+        msg_count =+ 1
+        with open("chatlog.txt", 'a') as chatlog:
+            chatlog.write(f"{context}\n")
+        chatlog.close()
+        check = database_read()
+        user = message.author
+        if str(user) not in check:
+            database_write(user)
+        
+            
+
+
+
+        
+            
+            
+            
+
+
+
+
+
+
+
+
+'''
+
+
+
+Dont Touch Below This Comment as it is starting parameters
+
+
+
+'''
+
+client = MyClient()
+
+initial_extensions = ["cogs.commands"]
+
+print("Running Setup...")
+
+print(initial_extensions)
+
+for extension in initial_extensions:
+    bot.load_extension(extension)
+
+print(f"Loaded '{extension}'...")
+
+print("Setup Complete...")
+
+
+
+client.run("TOKEN BLOCKED")
