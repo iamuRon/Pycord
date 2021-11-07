@@ -50,6 +50,7 @@ class MyClient(discord.Client):
         user = message.author
         if str(user) not in check:
             database_write(user)
+        await bot.process_commands(message)
         
             
 
